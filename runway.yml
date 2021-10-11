@@ -1,0 +1,11 @@
+---
+# See full syntax at https://docs.onica.com/projects/runway
+deployments:
+  - modules:
+      - path: sampleapp.cfn
+      - path: vpc.tf
+      - path: instances.tf
+      - path: instances2.tf
+      # - etc...
+    regions:
+      - us-east-1
