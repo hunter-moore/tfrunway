@@ -110,8 +110,8 @@ resource "aws_security_group" "ec2_sg" {
 
 # Create launch_template
 #
-resource "aws_launch_template" "ImgMgrLT" {
-  name                                 = "IMG_MGR"
+resource "aws_launch_template" "ImgMgrLT2" {
+  name                                 = "IMG_MGR2"
   image_id                             = data.terraform_remote_state.remote_vars.outputs.default_ami
   instance_initiated_shutdown_behavior = "terminate"
   instance_type                        = "t2.micro"
@@ -143,7 +143,7 @@ resource "aws_autoscaling_group" "img_mgr_asg" {
   min_size            = 2
 
   launch_template {
-    id      = aws_launch_template.ImgMgrLT.id
+    id      = aws_launch_template.ImgMgrLT2.id
     version = "$Latest"
   }
 }
@@ -151,8 +151,8 @@ resource "aws_autoscaling_group" "img_mgr_asg" {
 
 # Create ALB, listener, and TG
 #
-resource "aws_lb" "ImgMgrALB" {
-  name               = "img-mgr-alb"
+resource "aws_lb" "ImgMgrALB2" {
+  name               = "img-mgr-alb2"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.lb_sg.id]
@@ -160,16 +160,16 @@ resource "aws_lb" "ImgMgrALB" {
 
   tags = {
     Environment = "deb"
-    Name        = "IMG MGR ALB"
+    Name        = "IMG MGR ALB2"
   }
 }
 
 resource "aws_lb_listener" "img-mgr-listener" {
-  load_balancer_arn = aws_lb.ImgMgrALB.arn
+  load_balancer_arn = aws_lb.ImgMgrALB2.arn
   port              = 80
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.img_mgr_tg.arn
+    target_group_arn = aws_lb_target_group.img_mgr_tg2.arn
   }
 }
 
@@ -182,7 +182,7 @@ resource "aws_lb_target_group" "img_mgr_tg2" {
 
 resource "aws_autoscaling_attachment" "img_mgr_asg_attachment" {
   autoscaling_group_name = aws_autoscaling_group.img_mgr_asg.id
-  alb_target_group_arn   = aws_lb_target_group.img_mgr_tg.id
+  alb_target_group_arn   = aws_lb_target_group.img_mgr_tg2.id
 }
 
 # Create Scaling Policy for LB
@@ -250,7 +250,7 @@ resource "random_string" "origin_token" {
 
 resource "aws_cloudfront_distribution" "distribution" {
   origin {
-    domain_name = aws_lb.ImgMgrALB.dns_name
+    domain_name = aws_lb.ImgMgrALB2.dns_name
     origin_id   = "alb"
     custom_origin_config {
       http_port              = 80
